@@ -1,15 +1,27 @@
+using Application.Domain.Portfolios;
+using Application.Features.Portfolios;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.TagActionsBy(api =>
+        new[] { api.RelativePath?.Split('/').ElementAtOrDefault(1) }
+    );
+    c.DocInclusionPredicate((name, api) => true);
+});
+
+builder.Services.AddMediatR(c =>
+{
+    c.RegisterServicesFromAssembly(typeof(Portfolio).Assembly);
+});
+
+builder.Services.AddDbContext<PortfolioDbContext>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
