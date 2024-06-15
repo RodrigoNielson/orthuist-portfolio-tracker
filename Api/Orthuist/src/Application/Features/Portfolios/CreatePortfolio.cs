@@ -12,7 +12,7 @@ public class CreatePortfolioController(IMediator mediator) : ApiControllerBase(m
     [HttpPost]
     public async Task<IActionResult> Create(CreatePortfolioCommand command)
     {
-        return ApiResult(await _mediator.Send(command));
+        return await ApiResult(command);
     }
 }
 

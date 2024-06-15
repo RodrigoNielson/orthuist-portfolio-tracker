@@ -1,24 +1,34 @@
 ﻿using Ardalis.Result;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace Application.Common;
 
 [ApiController]
 public class ApiControllerBase(IMediator mediator) : ControllerBase
 {
-    public readonly IMediator _mediator  = mediator;
+    public readonly IMediator _mediator = mediator;
 
-    public IActionResult ApiResult<T>(Result<T> result)
+    public async Task<IActionResult> ApiResult<T>(IRequest<T> command) where T : Result
     {
-        if (result.IsSuccess)
+        try
         {
-            if (result.Value == null)
-                return NoContent();
+            var result = await _mediator.Send(command);
 
-            return Ok(result.Value);
+            if (result.IsSuccess)
+            {
+                if (result.Value == null)
+                    return NoContent();
+
+                return Ok(result.Value);
+            }
+
+            return BadRequest(result);
         }
-
-        return BadRequest(result);
+        catch (Exception ex)
+        {
+            return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
+        }
     }
 }
