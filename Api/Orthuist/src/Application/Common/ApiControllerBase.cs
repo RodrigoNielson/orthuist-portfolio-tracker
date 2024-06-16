@@ -10,21 +10,21 @@ public class ApiControllerBase(IMediator mediator) : ControllerBase
 {
     public readonly IMediator _mediator = mediator;
 
-    public async Task<IActionResult> ApiResult<T>(IRequest<T> command) where T : Result
+    public async Task<IActionResult> ApiResult<T>(IRequest<T> command) where T : IResult
     {
         try
         {
             var result = await _mediator.Send(command);
 
-            if (result.IsSuccess)
+            if (result.Status == ResultStatus.Ok)
             {
-                if (result.Value == null)
+                if (result.ValueType == null)
                     return NoContent();
 
-                return Ok(result.Value);
+                return Ok(result.GetValue());
             }
 
-            return BadRequest(result);
+            return BadRequest(result.Errors);
         }
         catch (Exception ex)
         {
