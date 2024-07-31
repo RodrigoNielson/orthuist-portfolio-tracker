@@ -36,6 +36,7 @@ public class Initial : Migration
             .WithColumn("Quantity").AsDecimal().NotNullable()
             .WithColumn("Price").AsDecimal().NotNullable()
             .WithColumn("Type").AsInt16().NotNullable()
+            .WithColumn("Movement_Date").AsDateTime().NotNullable()
             .WithColumn("Created_At").AsDateTime().NotNullable()
             .WithColumn("Updated_At").AsDateTime().Nullable();
 
@@ -46,7 +47,8 @@ public class Initial : Migration
 
     public override void Down()
     {
-        Delete.Table("Portfolio");
-        Delete.Table("Portfolio");
+        Delete.Table(PortfolioTable);
+        Delete.Table(PortfolioAssetTable);
+        Delete.Table(MovementTable);
     }
 }

@@ -16,13 +16,13 @@ public class CreatePortfolioController(IMediator mediator) : ApiControllerBase(m
     }
 }
 
-public record CreatePortfolioCommand(string Name) : IRequest<Result>;
+public record CreatePortfolioCommand(string Name) : IRequest<IResult>;
 
-public class CreatePortfolioCommandHandler(PortfolioDbContext portfolioDbContext) : IRequestHandler<CreatePortfolioCommand, Result>
+public class CreatePortfolioCommandHandler(PortfolioDbContext portfolioDbContext) : IRequestHandler<CreatePortfolioCommand, IResult>
 {
     private readonly PortfolioDbContext _portfolioDbContext = portfolioDbContext;
 
-    public async Task<Result> Handle(CreatePortfolioCommand request, CancellationToken cancellationToken)
+    public async Task<IResult> Handle(CreatePortfolioCommand request, CancellationToken cancellationToken)
     {
         var porfolio = new Portfolio
         {

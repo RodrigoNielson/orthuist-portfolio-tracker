@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Portfolios;
 
-[Route("api/portfolio/create-asset")]
+[Route("api/portfolio/asset")]
 public class CreatePortfolioAssetController(IMediator mediator) : ApiControllerBase(mediator)
 {
     [HttpPost]
@@ -38,7 +38,7 @@ public class CreatePortfolioUseCase(PortfolioDbContext portfolioDbContext) : IRe
         if (portfolio == null)
             return Result.Error("Portfolio not found");
 
-        var result = portfolio.AddAsset(request.Code, request.Name, request.Type, request.Price, request.Quantity);
+        var result = portfolio.CreateAsset(request.Code, request.Name, request.Type, request.Price, request.Quantity);
 
         if (!result.IsSuccess)
             return result;
