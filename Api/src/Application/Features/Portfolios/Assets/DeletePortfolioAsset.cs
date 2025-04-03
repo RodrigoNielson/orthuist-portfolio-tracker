@@ -4,11 +4,12 @@ using Ardalis.Result;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Features.Portfolios.Assets;
 
 [Route("api/portfolio")]
-public class DeletePortfolioAssetController(IMediator mediator) : ApiControllerBase(mediator)
+public class DeletePortfolioAssetController(IMediator mediator, ILogger<DeletePortfolioAssetController> logger) : ApiControllerBase(mediator, logger)
 {
     [HttpDelete("{portfolioId}/asset/{assetId}")]
     public async Task<IActionResult> Delete(Guid portfolioId, Guid assetId)
@@ -18,6 +19,10 @@ public class DeletePortfolioAssetController(IMediator mediator) : ApiControllerB
         return await ApiResult(command);
     }
 }
+
+public record DeletePortfolioAssetCommand(
+    Guid PortfolioId,
+    Guid AssetId) : IRequest<IResult>;
 
 public class DeletePortfolioAssetUseCase(PortfolioDbContext portfolioDbContext) : IRequestHandler<DeletePortfolioAssetCommand, IResult>
 {
@@ -46,7 +51,3 @@ public class DeletePortfolioAssetUseCase(PortfolioDbContext portfolioDbContext) 
         return Result.Error("Error deleting portfolio asset");
     }
 }
-
-public record DeletePortfolioAssetCommand(
-    Guid PortfolioId,
-    Guid AssetId) : IRequest<IResult>;

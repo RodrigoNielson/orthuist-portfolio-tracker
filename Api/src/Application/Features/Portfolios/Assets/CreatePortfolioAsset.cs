@@ -5,11 +5,12 @@ using Ardalis.Result;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Features.Portfolios.Assets;
 
 [Route("api/portfolio/asset")]
-public class CreatePortfolioAssetController(IMediator mediator) : ApiControllerBase(mediator)
+public class CreatePortfolioAssetController(IMediator mediator, ILogger<CreatePortfolioAssetController> logger) : ApiControllerBase(mediator, logger)
 {
     [HttpPost]
     public async Task<IActionResult> Create(CreatePortfolioAssetCommand command)
@@ -24,7 +25,8 @@ public record CreatePortfolioAssetCommand(
     string Name,
     PortfolioAssetType Type,
     decimal Price,
-    decimal Quantity) : IRequest<IResult>;
+    decimal Quantity,
+    DateTime MovementDate) : IRequest<IResult>;
 
 public class CreatePortfolioUseCase(PortfolioDbContext portfolioDbContext) : IRequestHandler<CreatePortfolioAssetCommand, IResult>
 {
@@ -40,7 +42,7 @@ public class CreatePortfolioUseCase(PortfolioDbContext portfolioDbContext) : IRe
         if (portfolio == null)
             return Result.Error("Portfolio not found");
 
-        var result = portfolio.CreateAsset(request.Code, request.Name, request.Type, request.Price, request.Quantity);
+        var result = portfolio.CreateAsset(request.Code, request.Name, request.Type, request.Price, request.Quantity, request.MovementDate);
 
         if (!result.IsSuccess)
             return result;

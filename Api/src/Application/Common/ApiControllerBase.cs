@@ -1,12 +1,13 @@
 ﻿using Ardalis.Result;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System.Net;
 
 namespace Application.Common;
 
 [ApiController]
-public class ApiControllerBase(IMediator mediator) : ControllerBase
+public class ApiControllerBase(IMediator mediator, ILogger logger) : ControllerBase
 {
     public readonly IMediator _mediator = mediator;
 
@@ -28,6 +29,8 @@ public class ApiControllerBase(IMediator mediator) : ControllerBase
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, "Error processing the command {comand} request: {Message}", nameof(command), ex.Message);
+
             return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
         }
     }

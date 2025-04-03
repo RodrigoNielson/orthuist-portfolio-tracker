@@ -10,24 +10,24 @@ public class PortfolioAsset : BaseEntity
     public string Code { get; set; }
     public string Name { get; set; }
     public PortfolioAssetType Type { get; set; }
-    public IList<Movement> Movements { get; set; } = new List<Movement>();
+    public IList<Movement> Movements { get; set; } = [];
 
     [NotMapped, Projectable]
     public decimal AllocatedQuantity => Movements.Sum(c => c.Type == MovementType.Add ? c.Quantity : c.Quantity * -1);
 
-    public Result CreateMovement(decimal price, decimal quantity, MovementType movementType)
+    public Result CreateMovement(decimal price, decimal quantity, DateTime date, MovementType movementType)
     {
         return movementType switch
         {
-            MovementType.Add => CreateAddMovement(price, quantity),
-            MovementType.Subtract => CreateSubtractMovement(price, quantity),
+            MovementType.Add => CreateAddMovement(price, quantity, date),
+            MovementType.Subtract => CreateSubtractMovement(price, quantity, date),
             _ => Result.Error("Invalid movement type"),
         };
     }
 
     public Result DeleteMovement(Guid movementId)
     {
-        var movement = Movements.FirstOrDefault(c => c.Id == movementId);   
+        var movement = Movements.FirstOrDefault(c => c.Id == movementId);
 
         if (movement == null)
             return Result.NotFound("Movement not found");
@@ -40,19 +40,20 @@ public class PortfolioAsset : BaseEntity
         return Result.Success();
     }
 
-    private Result CreateAddMovement(decimal price, decimal quantity)
+    private Result CreateAddMovement(decimal price, decimal quantity, DateTime date)
     {
         Movements.Add(new Movement
         {
             Price = price,
             Quantity = quantity,
-            Type = MovementType.Add
+            Type = MovementType.Add,
+            MovementDate = date
         });
 
         return Result.Success();
     }
 
-    private Result CreateSubtractMovement(decimal price, decimal quantity)
+    private Result CreateSubtractMovement(decimal price, decimal quantity, DateTime date)
     {
         if (AllocatedQuantity - quantity < 0)
             return Result.Error("Allocated quantity cannot be lower than 0");
@@ -61,7 +62,8 @@ public class PortfolioAsset : BaseEntity
         {
             Price = price,
             Quantity = quantity,
-            Type = MovementType.Subtract
+            Type = MovementType.Subtract,
+            MovementDate = date
         });
 
         return Result.Success();

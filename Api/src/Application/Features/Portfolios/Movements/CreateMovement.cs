@@ -5,11 +5,12 @@ using Ardalis.Result;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Features.Portfolios.Movements;
 
 [Route("api/portfolio/asset/movement")]
-public class CreateAssetMovementController(IMediator mediator) : ApiControllerBase(mediator)
+public class CreateAssetMovementController(IMediator mediator, ILogger<CreateAssetMovementController> logger) : ApiControllerBase(mediator, logger)
 {
     [HttpPost]
     public async Task<IActionResult> Create(CreateAssetMovementCommand command)
@@ -23,6 +24,7 @@ public record CreateAssetMovementCommand(
     Guid AssetId,
     decimal Price,
     decimal Quantity,
+    DateTime MovementDate,
     MovementType MovementType) : IRequest<IResult>;
 
 public class CreateMovementUseCase(PortfolioDbContext portfolioDbContext) : IRequestHandler<CreateAssetMovementCommand, IResult>
@@ -42,7 +44,7 @@ public class CreateMovementUseCase(PortfolioDbContext portfolioDbContext) : IReq
             .Include(c => c.Movements)
             .LoadAsync(cancellationToken: cancellationToken);
 
-        var result = portfolio.CreateMovement(request.AssetId, request.Price, request.Quantity, request.MovementType);
+        var result = portfolio.CreateMovement(request.AssetId, request.Price, request.Quantity, request.MovementDate, request.MovementType);
 
         if (!result.IsSuccess)
             return result;

@@ -8,14 +8,14 @@ public class Portfolio : BaseEntity
 
     public IList<PortfolioAsset> Assets { get; set; } = [];
 
-    public Result CreateMovement(Guid assetId, decimal price, decimal quantity, MovementType movementType)
+    public Result CreateMovement(Guid assetId, decimal price, decimal quantity, DateTime movementDate, MovementType movementType)
     {
         var asset = Assets.FirstOrDefault(c => c.Id == assetId);
 
         if (asset == null)
             return Result.NotFound("Asset not found");
 
-        asset.CreateMovement(price, quantity, movementType);
+        asset.CreateMovement(price, quantity, movementDate, movementType);
 
         return Result.Success();
     }
@@ -28,9 +28,9 @@ public class Portfolio : BaseEntity
             return Result.NotFound("Asset not found");
 
         return asset.DeleteMovement(movementId);
-    }   
+    }
 
-    public Result CreateAsset(string code, string name, PortfolioAssetType type, decimal price, decimal quantity)
+    public Result CreateAsset(string code, string name, PortfolioAssetType type, decimal price, decimal quantity, DateTime movementDate)
     {
         if (Assets.Any(c => c.Code == code))
             return Result.Conflict("Asset already exists");
@@ -43,7 +43,7 @@ public class Portfolio : BaseEntity
             Type = type
         };
 
-        portfolioAsset.CreateMovement(price, quantity, MovementType.Add);
+        portfolioAsset.CreateMovement(price, quantity, movementDate, MovementType.Add);
 
         Assets.Add(portfolioAsset);
 

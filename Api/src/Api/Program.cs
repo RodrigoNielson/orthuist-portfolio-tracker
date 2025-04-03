@@ -1,14 +1,23 @@
 using Application.Domain.Portfolios;
 using Application.Infrastructure;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.TagActionsBy(api =>
-        new[] { api.RelativePath?.Split('/').ElementAtOrDefault(1) }
+        [api.RelativePath?.Split('/').ElementAtOrDefault(1)]
     );
     c.DocInclusionPredicate((name, api) => true);
 });

@@ -4,11 +4,12 @@ using Ardalis.Result;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Features.Portfolios.Movements;
 
 [Route("api/portfolio")]
-public class DeleteAssetMovementController(IMediator mediator) : ApiControllerBase(mediator)
+public class DeleteAssetMovementController(IMediator mediator, ILogger<DeleteAssetMovementController> logger) : ApiControllerBase(mediator, logger)
 {
     [HttpDelete("{portfolioId}/asset/{assetId}/movement/{movementId}")]
     public async Task<IActionResult> Delete(Guid portfolioId, Guid assetId, Guid movementId)

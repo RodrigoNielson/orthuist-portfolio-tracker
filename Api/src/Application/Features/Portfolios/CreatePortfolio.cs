@@ -4,11 +4,12 @@ using Application.Infrastructure;
 using Ardalis.Result;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Features.Portfolios;
 
 [Route("api/portfolio")]
-public class CreatePortfolioController(IMediator mediator) : ApiControllerBase(mediator)
+public class CreatePortfolioController(IMediator mediator, ILogger<CreatePortfolioController> logger) : ApiControllerBase(mediator, logger)
 {
     [HttpPost]
     public async Task<IActionResult> Create(CreatePortfolioCommand command)

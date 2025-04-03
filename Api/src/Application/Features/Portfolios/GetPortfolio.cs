@@ -4,11 +4,12 @@ using Ardalis.Result;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Features.Portfolios;
 
 [Route("api/portfolio")]
-public class GetPortfolioController(IMediator mediator) : ApiControllerBase(mediator)
+public class GetPortfolioController(IMediator mediator, ILogger<GetPortfolioController> logger) : ApiControllerBase(mediator, logger)
 {
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(Guid id)
