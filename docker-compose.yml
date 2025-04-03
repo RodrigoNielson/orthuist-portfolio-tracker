@@ -1,0 +1,37 @@
+version: '3.9'
+
+services:
+  postgres:
+    container_name: postgres_container
+    image: postgres:16
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - "postgres:/data/postgres"
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres
+    restart: unless-stopped
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    ports:
+        - 9443:9443
+    volumes:
+      - portainer_data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+    networks:
+      - portainer
+
+networks:
+  postgres:
+    driver: bridge
+  portainer:
+    driver: bridge
+
+volumes:
+  postgres:
+  portainer_data:
