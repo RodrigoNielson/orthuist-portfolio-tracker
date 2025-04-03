@@ -1,11 +1,12 @@
 ﻿using Application.Common;
 using Application.Domain.Portfolios;
+using Application.Infrastructure;
 using Ardalis.Result;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Application.Features.Portfolios;
+namespace Application.Features.Portfolios.Assets;
 
 [Route("api/portfolio/asset")]
 public class CreatePortfolioAssetController(IMediator mediator) : ApiControllerBase(mediator)
@@ -32,7 +33,8 @@ public class CreatePortfolioUseCase(PortfolioDbContext portfolioDbContext) : IRe
     public async Task<IResult> Handle(CreatePortfolioAssetCommand request, CancellationToken cancellationToken)
     {
         var portfolio = await _portfolioDbContext.Portfolios
-            .Include(c => c.Assets)
+            .Include(c => c.Assets
+                .Where(a => a.Code == request.Code))
             .FirstOrDefaultAsync(c => c.Id == request.PortfolioId, cancellationToken);
 
         if (portfolio == null)

@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-namespace Application.Features.Portfolios;
+namespace Application.Infrastructure;
 public class PortfolioDbContext(IConfiguration configuration) : DbContext
 {
     public DbSet<Portfolio> Portfolios { get; set; }

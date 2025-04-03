@@ -1,11 +1,12 @@
 ﻿using Application.Common;
 using Application.Domain.Portfolios;
+using Application.Infrastructure;
 using Ardalis.Result;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Application.Features.Portfolios;
+namespace Application.Features.Portfolios.Movements;
 
 [Route("api/portfolio/asset/movement")]
 public class CreateAssetMovementController(IMediator mediator) : ApiControllerBase(mediator)
@@ -24,19 +25,17 @@ public record CreateAssetMovementCommand(
     decimal Quantity,
     MovementType MovementType) : IRequest<IResult>;
 
-public class AddMovementUseCase(PortfolioDbContext portfolioDbContext) : IRequestHandler<CreateAssetMovementCommand, IResult>
+public class CreateMovementUseCase(PortfolioDbContext portfolioDbContext) : IRequestHandler<CreateAssetMovementCommand, IResult>
 {
-    private readonly PortfolioDbContext _portfolioDbContext = portfolioDbContext;
-
     public async Task<IResult> Handle(CreateAssetMovementCommand request, CancellationToken cancellationToken)
     {
-        var portfolio = await _portfolioDbContext.Portfolios
-            .SingleAsync(c => c.Id == request.PortfolioId, cancellationToken);
+        var portfolio = await portfolioDbContext.Portfolios
+            .FirstOrDefaultAsync(c => c.Id == request.PortfolioId, cancellationToken);
 
         if (portfolio == null)
             return Result.Error("Portfolio not found");
 
-        await _portfolioDbContext.Entry(portfolio)
+        await portfolioDbContext.Entry(portfolio)
             .Collection(c => c.Assets)
             .Query()
             .Where(c => c.Id == request.AssetId)
@@ -48,7 +47,7 @@ public class AddMovementUseCase(PortfolioDbContext portfolioDbContext) : IReques
         if (!result.IsSuccess)
             return result;
 
-        await _portfolioDbContext.SaveChangesAsync(cancellationToken);
+        await portfolioDbContext.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
     }

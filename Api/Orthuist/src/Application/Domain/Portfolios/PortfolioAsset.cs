@@ -19,13 +19,28 @@ public class PortfolioAsset : BaseEntity
     {
         return movementType switch
         {
-            MovementType.Add => AddMovement(price, quantity),
-            MovementType.Subtract => SubtractMovement(price, quantity),
+            MovementType.Add => CreateAddMovement(price, quantity),
+            MovementType.Subtract => CreateSubtractMovement(price, quantity),
             _ => Result.Error("Invalid movement type"),
         };
     }
 
-    private Result AddMovement(decimal price, decimal quantity)
+    public Result DeleteMovement(Guid movementId)
+    {
+        var movement = Movements.FirstOrDefault(c => c.Id == movementId);   
+
+        if (movement == null)
+            return Result.NotFound("Movement not found");
+
+        if (AllocatedQuantity - movement.Quantity < 0)
+            return Result.Error("Allocated quantity cannot be lower than 0");
+
+        Movements.Remove(movement);
+
+        return Result.Success();
+    }
+
+    private Result CreateAddMovement(decimal price, decimal quantity)
     {
         Movements.Add(new Movement
         {
@@ -37,7 +52,7 @@ public class PortfolioAsset : BaseEntity
         return Result.Success();
     }
 
-    private Result SubtractMovement(decimal price, decimal quantity)
+    private Result CreateSubtractMovement(decimal price, decimal quantity)
     {
         if (AllocatedQuantity - quantity < 0)
             return Result.Error("Allocated quantity cannot be lower than 0");

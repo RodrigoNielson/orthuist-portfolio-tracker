@@ -5,8 +5,8 @@ namespace Application.Domain.Portfolios;
 public class Portfolio : BaseEntity
 {
     public string Name { get; set; }
-    
-    public IList<PortfolioAsset> Assets { get; set; } = new List<PortfolioAsset>();
+
+    public IList<PortfolioAsset> Assets { get; set; } = [];
 
     public Result CreateMovement(Guid assetId, decimal price, decimal quantity, MovementType movementType)
     {
@@ -19,6 +19,16 @@ public class Portfolio : BaseEntity
 
         return Result.Success();
     }
+
+    public Result DeleteMovement(Guid assetId, Guid movementId)
+    {
+        var asset = Assets.FirstOrDefault(c => c.Id == assetId);
+
+        if (asset == null)
+            return Result.NotFound("Asset not found");
+
+        return asset.DeleteMovement(movementId);
+    }   
 
     public Result CreateAsset(string code, string name, PortfolioAssetType type, decimal price, decimal quantity)
     {
@@ -36,6 +46,18 @@ public class Portfolio : BaseEntity
         portfolioAsset.CreateMovement(price, quantity, MovementType.Add);
 
         Assets.Add(portfolioAsset);
+
+        return Result.Success();
+    }
+
+    public Result DeleteAsset(Guid id)
+    {
+        var asset = Assets.FirstOrDefault(c => c.Id == id);
+
+        if (asset == null)
+            return Result.NotFound("Asset not found");
+
+        Assets.Remove(asset);
 
         return Result.Success();
     }
