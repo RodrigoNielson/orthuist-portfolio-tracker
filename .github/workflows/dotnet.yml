@@ -6,7 +6,7 @@ name: .NET
 on:
   push:
     branches: [ "main" ]
-    paths: "Api/Orthuist/**"
+    paths: "Api/**"
   pull_request:
     branches: [ "main" ]
 
@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./Api/Orthuist
+        working-directory: ./Api
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET
