@@ -18,9 +18,10 @@ public class PortfolioTests
         var price = _fixture.Create<decimal>();
         var quantity = _fixture.Create<decimal>();
         var movementType = _fixture.Create<MovementType>();
+        var date = _fixture.Create<DateTime>();
 
         // Act
-        var result = portfolio.CreateMovement(assetId, price, quantity, movementType);
+        var result = portfolio.CreateMovement(assetId, price, quantity, date, movementType);
 
         // Assert
         result.Status.Should().Be(ResultStatus.NotFound);
@@ -33,13 +34,16 @@ public class PortfolioTests
         // Arrange
         var portfolio = new Portfolio();
         var asset = _fixture.Create<PortfolioAsset>();
+
         portfolio.Assets.Add(asset);
+
         var price = _fixture.Create<decimal>();
         var quantity = _fixture.Create<decimal>();
         var movementType = _fixture.Create<MovementType>();
+        var date = _fixture.Create<DateTime>();
 
         // Act
-        var result = portfolio.CreateMovement(asset.Id, price, quantity, movementType);
+        var result = portfolio.CreateMovement(asset.Id, price, quantity, date, movementType);
 
         // Assert
         result.Status.Should().Be(ResultStatus.Ok);
@@ -66,8 +70,19 @@ public class PortfolioTests
     {
         // Arrange
         var portfolio = new Portfolio();
-        var asset = _fixture.Create<PortfolioAsset>();
+
+        var positiveMovements = _fixture.Build<Movement>()
+            .With(c => c.Quantity, 10)
+            .With(c => c.Type, MovementType.Add)
+            .CreateMany()
+            .ToList();
+
+        var asset = _fixture.Build<PortfolioAsset>()
+                            .With(c => c.Movements, positiveMovements)
+                            .Create();
+
         var movement = _fixture.Create<Movement>();
+
         asset.Movements.Add(movement);
         portfolio.Assets.Add(asset);
 
@@ -84,10 +99,13 @@ public class PortfolioTests
         // Arrange
         var portfolio = new Portfolio();
         var asset = _fixture.Create<PortfolioAsset>();
+
         portfolio.Assets.Add(asset);
 
+        var date = _fixture.Create<DateTime>();
+
         // Act
-        var result = portfolio.CreateAsset(asset.Code, asset.Name, asset.Type, asset.Movements.First().Price, asset.Movements.First().Quantity);
+        var result = portfolio.CreateAsset(asset.Code, asset.Name, asset.Type, asset.Movements.First().Price, asset.Movements.First().Quantity, date);
 
         // Assert
         result.Status.Should().Be(ResultStatus.Conflict);
@@ -104,9 +122,10 @@ public class PortfolioTests
         var type = _fixture.Create<PortfolioAssetType>();
         var price = _fixture.Create<decimal>();
         var quantity = _fixture.Create<decimal>();
+        var date = _fixture.Create<DateTime>();
 
         // Act
-        var result = portfolio.CreateAsset(code, name, type, price, quantity);
+        var result = portfolio.CreateAsset(code, name, type, price, quantity, date);
 
         // Assert
         result.Status.Should().Be(ResultStatus.Ok);
@@ -133,6 +152,7 @@ public class PortfolioTests
         // Arrange
         var portfolio = new Portfolio();
         var asset = _fixture.Create<PortfolioAsset>();
+
         portfolio.Assets.Add(asset);
 
         // Act
